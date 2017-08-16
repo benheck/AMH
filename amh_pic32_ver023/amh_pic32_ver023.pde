@@ -2,6 +2,8 @@
 // For PIC32 based pinHeck system
 // 2011-2016 Benjamin J Heckendorn
 
+// Have fun!
+
 //Include pin definitions and variables
 #include "gs_pins.h"							//System and gameplay variable declarations
 #include "lightshow.h"							//Lots of constant 8x8 grid definitions for doing insert lighting "shows"
