@@ -4600,7 +4600,7 @@ void checkRoll(unsigned char glirHit) {								//Check GLIR rollovers for comple
 			displayTimerCheck(89999);						//Properly end anything that may already be using the timer	
 		}	
 	}
-	else {
+	else if (glirHit == 1) {
 		video('F', 'X', '@' + (rollOvers[player] & B00001111), allowSmall, 0, 200);		//Show what letters we have earned thus far (whenever a rollover is hit, even if hit already)
     AddScore(5010);
 	}
