@@ -569,8 +569,14 @@ int UpperOrbitTime = 0;								//Timer after upper switch hit on orbit. Used to 
 int LFlipTime = -1;							//Timer for flipper high current
 int RFlipTime = -1;							//Timer for flipper high current
 
+int LFlipPulseTime = 0;						//Timer for flipper high current pulse
+int RFlipPulseTime = 0;						//Timer for flipper high current pulse
+
 int LholdTime = 0;							//Timers for hold coil PWM
 int RholdTime = 0;							//Timers for hold coil PWM
+
+int LEosMade = 0;							//Has the EOS been hit yet for this flip?
+int REosMade = 0;							//Has the EOS been hit yet for this flip?
 
 int leftDebounce = 0;						//Flipper buttons don't use the built-in Cabinet Button Debounce
 int rightDebounce = 0;						//These variables do it manually
@@ -694,6 +700,7 @@ unsigned short drainPWMstart = 5850;					//When to switch from Drain Kick power 
 //Static Coil / Magnet Settings-----------------------------------------
 //#define loadStrength	10							//How hard the ball loader is
 //#define drainStrength	10							//15 How hard it gets out of drain
+#define flipTop			20							//Used to PWM the power coil on flippers
 #define holdTop			50 //250					//Used to PWM the hold coil on flippers
 #define holdHalf		25 //125					//Save a calculation later	
 #define magPWM			100 //350					//How many cycles between magnet pulses to hold it on

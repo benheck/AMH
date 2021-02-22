@@ -6805,7 +6805,9 @@ void flippers() {								//Control flippers, if enabled, as well as ball launche
 			if (leftDebounce > flipperDebounce) {
 				leftDebounce = flipperDebounce;
 				digitalWrite(LFlipHigh, 1);
-				LFlipTime = FlipPower;
+				LFlipTime = 500;
+				LFlipPulseTime = flipTop + 1;
+				LEosMade = 0;
 				rollLeft();
 				flipperCheck += 1;
 			}
@@ -6816,7 +6818,9 @@ void flippers() {								//Control flippers, if enabled, as well as ball launche
 			if (rightDebounce > flipperDebounce) {
 				rightDebounce = flipperDebounce;
 				digitalWrite(RFlipHigh, 1);
-				RFlipTime = FlipPower;
+				RFlipTime = 500;
+				RFlipPulseTime = flipTop + 1;
+				REosMade = 0;
 				rollRight();
 				flipperCheck += 1;
 			}
@@ -6836,10 +6840,22 @@ void flippers() {								//Control flippers, if enabled, as well as ball launche
 	
 	if (LFlipTime > 0) {
 		LFlipTime -= 1;
+		LFlipPulseTime -= 1;
 		if (LFlipTime == 0 or leftEOS == 1) { //Did timer run out OR EOS hit?
 			digitalWrite(LFlipHigh, 0); //Turn off high power
 			LholdTime = holdTop + 5;			 //Set PWM timer
 			//digitalWrite(LFlipLow, 1); //Switch on hold current
+		}
+		else {
+			if (LFlipPulseTime == flipTop) {
+				digitalWrite(LFlipHigh, 1);	//Switch coil ON.
+			}
+			if (LFlipPulseTime == (flipTop - FlipPower)) {
+				digitalWrite(LFlipHigh, 0);	//Switch coil OFF
+			}
+			if (LFlipPulseTime <= 1) {			//Almost done?
+				LFlipPulseTime = flipTop + 1;		//Reset it
+			}
 		}
 	}
 
@@ -6857,15 +6873,21 @@ void flippers() {								//Control flippers, if enabled, as well as ball launche
 		LholdTime -= 1;
 	}
 
-	if (bitRead(cabinet, LFlip) == 1 and LFlipTime == 0 and leftEOS == 0) {		//Hold Coil fail? (maybe a ball came down and hit the tip hard?)
-		digitalWrite(LFlipHigh, 1);												//Short burst of high current
-		LFlipTime = 5;
+	if (bitRead(cabinet, LFlip) == 1) {
+		if(leftEOS == 1) {
+			LEosMade = 1;
+		}
+		if(LFlipTime == 0 and leftEOS == 0 and LEosMade == 1) {		//Hold Coil fail? (maybe a ball came down and hit the tip hard?)
+			digitalWrite(LFlipHigh, 1);												//Short burst of high current
+			LFlipTime = 5;
+		}
 	}		
 	
 	if (bitRead(cabinet, LFlip) == 0) { //Button released? (normal state)
 		leftDebounce = 0;
 		LFlipTime = -10;				//Make flipper re-triggerable, with debounce
 		LholdTime = 0;				//Disable hold timer.
+		LEosMade = 0;
 		digitalWrite(LFlipHigh, 0); //Turn off high power
 		digitalWrite(LFlipLow, 0);  //Switch off hold current		
 	}
@@ -6876,10 +6898,22 @@ void flippers() {								//Control flippers, if enabled, as well as ball launche
 	
 	if (RFlipTime > 0) {
 		RFlipTime -= 1;
+		RFlipPulseTime -= 1;
 		if (RFlipTime == 0 or rightEOS == 1) { //Did timer run out OR EOS hit?
 			digitalWrite(RFlipHigh, 0); //Turn off high power
 			RholdTime = holdTop + 5;			 //Set PWM timer
 			//digitalWrite(RFlipLow, 1); //Switch on hold current
+		}
+		else {
+			if (RFlipPulseTime == flipTop) {
+				digitalWrite(RFlipHigh, 1);	//Switch coil ON.
+			}
+			if (RFlipPulseTime == (flipTop - FlipPower)) {
+				digitalWrite(RFlipHigh, 0);	//Switch coil OFF
+			}
+			if (RFlipPulseTime <= 1) {			//Almost done?
+				RFlipPulseTime = flipTop + 1;		//Reset it
+			}
 		}
 	}
 
@@ -6897,15 +6931,21 @@ void flippers() {								//Control flippers, if enabled, as well as ball launche
 		RholdTime -= 1;
 	}
 	
-	if (bitRead(cabinet, RFlip) == 1 and RFlipTime == 0 and rightEOS == 0) {	//Hold Coil fail? (maybe a ball came down and hit the tip hard?)
-		digitalWrite(RFlipHigh, 1);												//Short burst of high current
-		RFlipTime = 5;
+	if (bitRead(cabinet, RFlip) == 1) {
+		if(rightEOS == 1) {
+			REosMade = 1;
+		}
+		if(RFlipTime == 0 and rightEOS == 0 and REosMade == 1) {		//Hold Coil fail? (maybe a ball came down and hit the tip hard?)
+			digitalWrite(RFlipHigh, 1);												//Short burst of high current
+			RFlipTime = 5;
+		}
 	}		
 	
 	if (bitRead(cabinet, RFlip) == 0) { //Button released? (normal state)
 		rightDebounce = 0;
 		RFlipTime = -10;				//Make flipper re-triggerable, with debounce
 		RholdTime = 0;				//Disable hold timer
+		REosMade = 0;
 		digitalWrite(RFlipHigh, 0); //Turn off high power
 		digitalWrite(RFlipLow, 0);  //Switch off hold current		
 	}
@@ -17584,7 +17624,7 @@ void printVersion() {							//Finds the game name on the EEPROM and spits it out
 
 void calculateCoils() {					//Set the actual coil timings based off our 0-9 numbers
 
-	FlipPower = (coilSettings[0] * 30) + 1; //30;			//FLIPPERS Gives a range from 1 to 271
+	FlipPower = flipTop - (9 - coilSettings[0]);			//FLIPPERS Gives a range from 11 to 20
 	SlingPower = coilSettings[1] + 6;						//SLINGS Gives a range from 6 to 15
 	PopPower = coilSettings[2] + 6;							//POPS Gives a range from 6 to 15
 	vukPower = coilSettings[3] + 1;							//LEFT VUK Gives a range from 1 to 10	
