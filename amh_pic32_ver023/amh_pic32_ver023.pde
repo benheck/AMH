@@ -1407,7 +1407,7 @@ void mainSettingsMenu() {						//Menu for changing game settings
 		if (cabSwitch(RFlip)) {
 			playSFX(1, 'O', 'R', 'X', 255);	
 			whichSelection += 1;
-			if (whichSelection > 14) {
+			if (whichSelection > 21) {
 				whichSelection = 0;
 			}
 			menuDisplay();
@@ -1416,7 +1416,7 @@ void mainSettingsMenu() {						//Menu for changing game settings
 			playSFX(1, 'O', 'R', 'W', 255);	
 			whichSelection -= 1;
 			if (whichSelection < 0) {
-				whichSelection = 14;
+				whichSelection = 21;
 			}
 			menuDisplay();			
 		}
@@ -1520,10 +1520,56 @@ void mainSettingsMenu() {						//Menu for changing game settings
 						searchTimer = 6000;
 					}							
 					break;	
-        case 13:
+				case 13:		
+					highScoreKnocks[0] += 1;
+					if (highScoreKnocks[0] >= 6) {
+						highScoreKnocks[0] = 0;
+					}							
+					break;	
+				case 14:		
+					highScoreKnocks[1] += 1;
+					if (highScoreKnocks[1] >= 6) {
+						highScoreKnocks[1] = 0;
+					}							
+					break;	
+				case 15:		
+					highScoreKnocks[2] += 1;
+					if (highScoreKnocks[2] >= 6) {
+						highScoreKnocks[2] = 0;
+					}							
+					break;	
+				case 16:		
+					highScoreKnocks[3] += 1;
+					if (highScoreKnocks[3] >= 6) {
+						highScoreKnocks[3] = 0;
+					}							
+					break;	
+				case 17:		
+					highScoreKnocks[4] += 1;
+					if (highScoreKnocks[4] >= 6) {
+						highScoreKnocks[4] = 0;
+					}							
+					break;	
+				case 18:
+					if (lightUseAltDriver) {
+						lightUseAltDriver = 0;
+					}
+					else {
+						lightUseAltDriver = 1;
+					} 
+					break;
+				case 19:
+					if (coilScoopBoost) {
+						coilScoopBoost = 0;
+					}
+					else {
+						coilScoopBoost = 1;
+					} 
+					break;
+        case 20:
           defaultSettings();
           break;
-        case 14:
+        case 21:
           creditDot = 0;
           saveCreditDot();        //Update the EEPROM. Note, system could still decide there should be a credit dot and add one back in later
           Update(0);              //Update the display
@@ -1976,7 +2022,7 @@ void menuDisplay() {							//This function actually draws the menus
 					text(0, 1, "LOOP MAGNET");				
 					break;	
 				case 1:		
-					text(0, 1, "UNUSED");				
+					text(0, 1, "KNOCKER");				
 					break;	
 				case 2:		
 					text(0, 1, "UNUSED");			
@@ -2414,10 +2460,53 @@ void menuDisplay() {							//This function actually draws the menus
 					text(value(0, 2, 4000 - (searchTimer - 2000)) + 1, 2, "INTENSITY");				
 					break;	
  				case 13:		
+					text(0, 1, "HIGH SCORE 1");
+					value(0, 2, highScoreKnocks[0]);
+                                        text(2, 2, "KNOCKS");					
+					break;	           
+ 				case 14:		
+					text(0, 1, "HIGH SCORE 2");
+					value(0, 2, highScoreKnocks[1]);
+                                        text(2, 2, "KNOCKS");					
+					break;	           
+ 				case 15:		
+					text(0, 1, "HIGH SCORE 3");
+					value(0, 2, highScoreKnocks[2]);
+                                        text(2, 2, "KNOCKS");					
+					break;	           
+ 				case 16:		
+					text(0, 1, "HIGH SCORE 4");
+					value(0, 2, highScoreKnocks[3]);
+                                        text(2, 2, "KNOCKS");					
+					break;	           
+ 				case 17:		
+					text(0, 1, "HIGH SCORE 5");
+					value(0, 2, highScoreKnocks[4]);
+                                        text(2, 2, "KNOCKS");					
+					break;	           
+ 				case 18:		
+					text(0, 1, "LAMP DRIVER");
+					if (lightUseAltDriver) {
+						text(0, 2, "LESS FLICKER");
+					}
+					else {
+						text(0, 2, "STANDARD");
+					}
+					break;	           
+ 				case 19:		
+					text(0, 1, "SCOOP POWER+");
+					if (coilScoopBoost) {
+						text(0, 2, "YES");
+					}
+					else {
+						text(0, 2, "NO");
+					}
+					break;	           
+ 				case 20:		
 					text(0, 1, "SET FACTORY");
 					text(0, 2, "DEFAULTS?");					
 					break;	  
- 				case 14:		
+ 				case 21:		
 					text(0, 1, "CLEAR CREDIT");
 					text(0, 2, "DOT?");					
 					break;	           
@@ -3442,7 +3531,12 @@ void ballSearch() {								//Can't find balls? This routine tries to find them
 	}
 	
 	if (Switch(22)) {				//Ball in Basement Scoop?
-		Coil(ScoopKick, scoopPower);
+		if(activeBalls > 1) {
+			Coil(ScoopKick, scoopPower + 4);
+		} else {
+			Coil(ScoopKick, scoopPower);
+		}
+			
 		//Serial.println("Ball BASEMENT SCOOP");
 	}
 	
@@ -3477,7 +3571,11 @@ void ballSearchDebounce(char onOff) {
 void ballClear() {								//Like ball search, clears out locked balls
 
 	if (Switch(22)) {				//Ball in Basement Scoop?
-		Coil(ScoopKick, scoopPower);
+		if(activeBalls > 1) {
+			Coil(ScoopKick, scoopPower + 4);
+		} else {
+			Coil(ScoopKick, scoopPower);
+		}
 	}
 	
 	if (Switch(23)) {				//Ball behind door?
@@ -6761,6 +6859,9 @@ void extraBallCollect() {
 			video('S', 'A', 'B', allowSmall, 0, 255);
 			playSFX(0, 'A', 'X', 'C' + random(2), 255);	//EXTRA BALL!
 			extraBalls += 1;							//Player gets another ball!
+			//HLT - time the knocker for when the ball hits the ground
+			KnockerTime = 23000;
+			knocker(1);							//Fire the knocker
 			spookCheck();								//See what to do with the Spook Again light
 			break;
 		case 2:
@@ -6918,6 +7019,10 @@ void GameOver() {
 
 	endingQuote = 10;									  //Default is to play an Team Leader lending quote. Unless we get an Easter Egg score entry
 
+	while (KnockerCount) {
+		houseKeeping();
+	}
+
 	for (int x = 0 ; x < 8 ; x++) {
 		killTimer(x);								//Make sure all timers are dead. You never know.
 	}
@@ -6998,6 +7103,8 @@ void GameOver() {
 					for (int zz = 0 ; zz < 5 ; zz++) {								//Send the newly sorted top 5 scores from RAM to EEPROM
 						setHighScore(zz, highScores[zz], topPlayers[(zz * 3) + 0], topPlayers[(zz * 3) + 1], topPlayers[(zz * 3) + 2]);					
 					}
+					KnockerTime = 10;
+					knocker(highScoreKnocks[y]);
 					
 					//setHighScore(y, highScores[y], topPlayers[(y * 3) + 0], topPlayers[(y * 3) + 1], topPlayers[(y * 3) + 2]);
 					//delay(20);
@@ -7013,6 +7120,10 @@ void GameOver() {
 	repeatMusic(0);									//Music will play and then terminate (disable auto looping)	
 	
   stopMusic();
+		
+	while (KnockerCount) {
+		houseKeeping();
+	}
 	
 	if (allowMatch) {
 
@@ -7046,6 +7157,8 @@ void GameOver() {
 
 		if (matchFlag) {										//Does one of the player's scores match?
 			credits += matchFlag;								//Award a credit for each match!
+			KnockerTime = 15000;							//Wait before the first knock so that it happens with the reveal
+			knocker(matchFlag);								//Knock once for each match
       playSFX(0, 'K', 'M', '1', 255);
 			//playMusic('Z', '1');								//WIN music
 		}
@@ -7074,6 +7187,10 @@ void GameOver() {
       break;         
     }
 		
+		while (KnockerCount) {
+			houseKeeping();
+		}
+	
 	}
 	else {
 		video('N', '9', '9', 0, 0, 255);					//Game Over Screen!
@@ -14657,7 +14774,11 @@ void switchDeadCheck() {
 		if (switchDead == deadTop + (searchTimer * 2)) {
 			Serial.print(".");
 			Coil(Bump2, 8); //PopPower);
-			Coil(ScoopKick, scoopPower);
+			if(activeBalls > 1) {
+				Coil(ScoopKick, scoopPower + 4);
+			} else {
+				Coil(ScoopKick, scoopPower);
+			}
 
 			if (DoorLocation == DoorOpen) {
 				doorCheck = 20;					//Set state 1
@@ -15004,7 +15125,12 @@ void Timers() {									//Check all game function timers.
         playMusic('D', 'Z');						//Until we get final music ready
       }
       
-			Coil(ScoopKick, scoopPower);					//Kick out ball	
+			if(scoopRepeatTimer) {
+				Coil(ScoopKick, scoopPower + 4);					//Kick out ball with extra power
+			} else {
+				Coil(ScoopKick, scoopPower);					//Kick out ball	
+			}
+			scoopRepeatTimer = longSecond * 2;
 			
 			if (Tunnel) {
 				Tunnel = 0;							//Clear flag, if set
@@ -15139,6 +15265,10 @@ void Timers() {									//Check all game function timers.
 
 	if (popsTimer) {
 		popsTimer -= 1;
+	}
+	
+	if (scoopRepeatTimer) {
+		scoopRepeatTimer -= 1;
 	}
 	
 	if (TargetDelay) {							//Target set to move after a delay?
@@ -17145,6 +17275,7 @@ void defaultSettings() {
 	//flipperAttract  It should only change at the factory or if user specifically changes it in the menu.
 	creditDot = 0;
   magEnglish = 0;
+  lightUseAltDriver = 0;
   winMusic = 1;               //New music
   
 	//EEPROM 20:	Like #8, RGB settings, this should only be set when new code detects no settings are in EEPROM (either a blank flash or code update) or if a user manually changes it
@@ -17157,6 +17288,7 @@ void defaultSettings() {
 	//EEPROM 21:	
 	//DoorOpen = DoorOpenDefault;
 	//DoorClosed = DoorClosedDefault;	
+	coilScoopBoost = 0;
 
   //EEPROM 22:
   tiltTenths = 6;             //6/10ths of a second
@@ -17252,7 +17384,8 @@ void loadSettings() {					//Get default game settings from EEPROM
 	
 	flipperAttract = x >> 24;
 	creditDot = (x >> 16) & 0xFF;
-  magEnglish = (x >> 8) & 0xFF;
+	magEnglish = (x >> 8) & 0xFF;
+	lightUseAltDriver = x & 0xFF;
   
 	//EEPROM 10-17 used for coil settings
 	
@@ -17267,7 +17400,8 @@ void loadSettings() {					//Get default game settings from EEPROM
 
 	DoorOpen = x >> 24;
 	DoorClosed = (x >> 16) & 0xFF;
-  winMusic = (x >> 8) & 0xFF;
+	winMusic = (x >> 8) & 0xFF;
+	coilScoopBoost = x & 0xFF;
     
 	x = readEEPROM(22);	  
   
@@ -17282,6 +17416,17 @@ void loadSettings() {					//Get default game settings from EEPROM
   pulsesPerCredit = (x >> 16) & 0xFF;
   ghostBurstCallout = (x >> 8) & 0xFF;
   coinDoorDetect = x & 0xFF;  
+
+	x = readEEPROM(24);	  
+  
+  highScoreKnocks[0] = x >> 24;
+  highScoreKnocks[1] = (x >> 16) & 0xFF;
+  highScoreKnocks[2] = (x >> 8) & 0xFF;
+  highScoreKnocks[3] = x & 0xFF;  
+
+	x = readEEPROM(25);	  
+  
+  highScoreKnocks[4] = x >> 24;
 
   //If a new setting is added in EEPROM, an existing game (pre-update) will have FFFFFFFF there. Check if invalid setting loaded, set default, and re-save to EEPROM
   
@@ -17386,6 +17531,25 @@ void loadSettings() {					//Get default game settings from EEPROM
     reSaveSettings = true;   
   }
  
+  if (highScoreKnocks[0] >= 6 or highScoreKnocks[1] >= 6 or highScoreKnocks[2] >= 6 or highScoreKnocks[3] >= 6 or highScoreKnocks[4] >= 6) {
+    highScoreKnocks[0] = highScore1KnocksDefault;
+    highScoreKnocks[1] = highScore2KnocksDefault;
+    highScoreKnocks[2] = highScore3KnocksDefault;
+    highScoreKnocks[3] = highScore4KnocksDefault;
+    highScoreKnocks[4] = highScore5KnocksDefault;
+    reSaveSettings = true;   
+  }
+  
+  if (lightUseAltDriver > 1) {   
+    lightUseAltDriver = 0;
+    reSaveSettings = true;   
+  }
+ 
+  if (coilScoopBoost > 1) {   
+    coilScoopBoost = 0;
+    reSaveSettings = true;   
+  }
+ 
   cabDBTime[8] = tiltTenths * 1200;               //Set the debounce 
 	
 	//Get custom coil settings...
@@ -17450,7 +17614,7 @@ void saveSettings(unsigned char messageFlag) {					//Save default game settings 
 	writeEEPROM(6, tournament << 24 | allowReplay << 16 | EVP_EBsetting << 8 | comboSeconds);
 	writeEEPROM(7, videoModeEnable << 24 | zeroPointBall << 16 | scoopSaveStart);
 	writeEEPROM(8, rgbType << 24 | deadTopSeconds << 16 | searchTimer);
-  writeEEPROM(9, flipperAttract << 24 | creditDot << 16 | magEnglish << 8);
+  writeEEPROM(9, flipperAttract << 24 | creditDot << 16 | magEnglish << 8 | lightUseAltDriver);
 	
 	//Write the coil settings to EEPROM
 	writeEEPROM(10, coilSettings[0]);	//Flippers		
@@ -17465,9 +17629,11 @@ void saveSettings(unsigned char messageFlag) {					//Save default game settings 
 	//Write Servo Defaults to EEPROM
 	
 	writeEEPROM(20, TargetDown << 24 | TargetUp << 16 | hellUp << 8 | hellDown);		
-	writeEEPROM(21, DoorOpen << 24 | DoorClosed << 16 | winMusic << 8);	
+	writeEEPROM(21, DoorOpen << 24 | DoorClosed << 16 | winMusic << 8 | coilScoopBoost);	
   writeEEPROM(22, tiltTenths << 24 | middleWarBar << 16 | scoopSaveWhen << 8 | orbSlings);
   writeEEPROM(23, pulsesPerCoin << 24 | pulsesPerCredit << 16 | ghostBurstCallout << 8 | coinDoorDetect);
+  writeEEPROM(24, highScoreKnocks[0] << 24 | highScoreKnocks[1] << 16 | highScoreKnocks[2] << 8 | highScoreKnocks[3]);
+  writeEEPROM(25, highScoreKnocks[4] << 24);
   
 	//saveAudits();						//Different routine for this since it's written a lot more often
 	
@@ -17475,7 +17641,7 @@ void saveSettings(unsigned char messageFlag) {					//Save default game settings 
 
 void saveCreditDot() {
   
-  writeEEPROM(9, flipperAttract << 24 | creditDot << 16 | magEnglish << 8);
+  writeEEPROM(9, flipperAttract << 24 | creditDot << 16 | magEnglish << 8 | lightUseAltDriver);
   
 }
 
@@ -17689,9 +17855,23 @@ void getHighScore(unsigned char whichPosition) {	//Puts high score on EEPROM
 
 }
 
+void knocker(unsigned char addKnocks) {
+	KnockerCount += addKnocks;
+
+ 	if (KnockerTime) {				//Fire knocker as necessary with a delay between each one
+		KnockerTime -= 1;
+	} else if (KnockerCount) {
+		Coil(Knocker, knockerPower);
+		KnockerCount -= 1;
+		KnockerTime = 5000;
+	}
+}
+
 void houseKeeping() {					//Run this routine all the time. It does lighting, checks cabinet switches, and enables solenoids
 
 	boolean strobeFlag = 0;					//Whether or not we should move the strobing lights on this cycle
+
+	knocker(0);
 
 	blinkTimer += lightSpeed;
 	
@@ -18248,6 +18428,7 @@ unsigned long AddScore(long scoreAmount) {
 		//video('S', 'R', 'P', 0, 0, 255);					//Replay sound and graphic	
 		//playSFX(0, 'A', 'X', 'Z', 255);
 		replayGet += 1;
+		knocker(1);
 		if (freePlay == 0) {								//Only advance this if it's actually in freeplay mode
 			credits += 1;
 		}	
@@ -18614,47 +18795,90 @@ extern "C"
 
 void __ISR(_TIMER_2_VECTOR, ipl6) LightDriver(void) {
 
-	lightGap++;
+	if (lightUseAltDriver) {
+		if (lightGap == 1) {
+			LATB = 0;
+			lightGap = 0;
+		}
 
-	if (lightGap == 2) {
-		LATB = 0;
+		else {
+			lightData[lightCol] = 0;						//Clear byte so we can build a new one
+			lightRowBit = 1;							//Reset build byte to 1
+
+			for (int gx = 0 ; gx < 8 ; gx++) {				//Loop 8 times
+
+				if (lamp[lampnum + gx] > lightPWM) {			//Is the current lamp value greater than PWM?
+					lightData[lightCol] |= lightRowBit;		//If so, add current row bit.
+				}
+
+				lightRowBit <<= 1;						//Shift build bit to the next position
+			}
+
+			LATB = (lightData[lightCol] << 8) + lightColBit; //Set Port B to the light row & column output data
+
+			lightPWM += 1;
+			if (lightPWM == 8) {	//Have we finished all 8 PWM levels?
+
+				lightPWM = 0;	//Start over at the first PWM level
+				lightCol += 1;	//Step to the next column
+				lightColBit <<= 1;	//Shift bit row trigger to the left
+				lampnum += 8;
+				lightGap = 1;	//We want a no-ghosting gap next time through
+
+				if (lightCol == 8) {						//Did we reach the end of a frame?
+					lightCol = 0;								//Reset Column # numeral
+					lightColBit = 1;							//Reset Column # bit
+					lampnum = 0;							//Reset lamp # to zero (since we completed a frame)
+				}
+
+			}
+		}
 	}
-	
-	if (lightGap == 3) {
-	
-    lightGap = 0;
-    lightData[lightCol] = 0;						//Clear byte so we can build a new one
-    lightRowBit = 1;							//Reset build byte to 1
-    
-    for (int gx = 0 ; gx < 8 ; gx++) {				//Loop 8 times
-    
-      if (lamp[lampnum++] > lightPWM) {			  //Increment lamp #, Is the current lamp value greater than PWM?
-        lightData[lightCol] |= lightRowBit;		//If so, add current row bit.
-      }
 
-      lightRowBit <<= 1;						//Shift build bit to the next position
-    
-    }
+	else {
+		lightGap++;
 
-    LATB = (lightData[lightCol] << 8) | lightColBit; //Set Port B to the light row & column output data
-	
-    lightCol++;  							//Increase light row number, decimal
-    lightColBit <<= 1; 							//Shift bit row trigger to the left
-  
-    if (lightCol == 8) {						//Did we reach the end of a frame?
-	
-      lightCol = 0;								//Reset Column # numeral
-      lightColBit = 1;							//Reset Column # bit
-      lampnum = 0;							//Reset lamp # to zero (since we completed a frame)
-      
-      lightPWM++;							//Increment PWM counter
-      
-      if (lightPWM == 8) {						//Did we reach the end?
-        lightPWM = 0;							//Reset PWM counter	  
-      }
-	  
-    }	
+		if (lightGap == 2) {
+			LATB = 0;
+		}
+		
+		if (lightGap == 3) {
+			
+			lightGap = 0;
+			lightData[lightCol] = 0;						//Clear byte so we can build a new one
+			lightRowBit = 1;							//Reset build byte to 1
+			
+			for (int gx = 0 ; gx < 8 ; gx++) {				//Loop 8 times
+			
+			  if (lamp[lampnum++] > lightPWM) {			  //Increment lamp #, Is the current lamp value greater than PWM?
+				lightData[lightCol] |= lightRowBit;		//If so, add current row bit.
+			  }
 
+			  lightRowBit <<= 1;						//Shift build bit to the next position
+			
+			}
+
+			LATB = (lightData[lightCol] << 8) | lightColBit; //Set Port B to the light row & column output data
+			
+			lightCol++;  							//Increase light row number, decimal
+			lightColBit <<= 1; 							//Shift bit row trigger to the left
+		  
+			if (lightCol == 8) {						//Did we reach the end of a frame?
+			
+			  lightCol = 0;								//Reset Column # numeral
+			  lightColBit = 1;							//Reset Column # bit
+			  lampnum = 0;							//Reset lamp # to zero (since we completed a frame)
+			  
+			  lightPWM++;							//Increment PWM counter
+			  
+			  if (lightPWM == 8) {						//Did we reach the end?
+				lightPWM = 0;							//Reset PWM counter	  
+			  }
+			  
+			}	
+
+		}
+		
 	}
 
   mT2ClearIntFlag();  // Clear interrupt flag
