@@ -7460,7 +7460,10 @@ void HospitalStart() {							//What happens when we shoot "Doctor Ghost" when li
 	jackpotMultiplier = 1;						//Reset this just in case
 	
 	ghostAction = 5100;							//Set flag for him to jiggle near door
-	TargetSet(TargetUp);						//Put targets UP!
+	// There is a possible race here if a glancing shot starts a minion, then immediately starts Dr. Ghost
+	// Using a TargetTimerSet() instead of TargetSet() clears any minion TargetDown that is pending
+	//TargetSet(TargetUp);						//Put targets UP!
+	TargetTimerSet(1, TargetUp, 1);
 		
 	patientStage = 0;							//What stage of Ghost Patient you're at
 	patientsSaved = 0;							//How many you saved, through Murder!
