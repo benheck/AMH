@@ -9746,14 +9746,16 @@ void logic() {									//This doesn't run if we're in a Ball Drain.
 			
 			modeTimer -= 1;
 			
-			if (modeTimer > 11000 and modeTimer < 11100) {
-				digitalWrite(LFlipHigh, 1);		//Wiggle the flipper!
-			}			
-			if (modeTimer > 8000 and modeTimer < 8100) {
-				digitalWrite(LFlipHigh, 1);		//Wiggle the flipper!
-			}
-			if (modeTimer > 4000 and modeTimer < 4100) {
-				digitalWrite(LFlipHigh, 1);		//Wiggle the flipper!
+			if (bitRead(cabinet, LFlip) == 0) {			//HLT - only do this if the flipper is not being held, otherwise the fuse will blow
+				if (modeTimer > 11000 and modeTimer < 11100) {
+					digitalWrite(LFlipHigh, 1);		//Wiggle the flipper!
+				}			
+				if (modeTimer > 8000 and modeTimer < 8100) {
+					digitalWrite(LFlipHigh, 1);		//Wiggle the flipper!
+				}
+				if (modeTimer > 4000 and modeTimer < 4100) {
+					digitalWrite(LFlipHigh, 1);		//Wiggle the flipper!
+				}
 			}		
 		}
 			
