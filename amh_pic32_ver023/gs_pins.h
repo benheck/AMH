@@ -407,11 +407,23 @@ unsigned long switchDead = 0;								//Timer to check to see if the ball is stuc
 #define searchTimerDefault		4000						//Cycles between coil whacks in ball search. 2000-6000 is a good range
 #define sendChase				3							//How many times to try a ball search during a game before sending out a chase ball
 
+#define highScore1KnocksDefault         1
+#define highScore2KnocksDefault         1
+#define highScore3KnocksDefault         1
+#define highScore4KnocksDefault         1
+#define highScore5KnocksDefault         1
+
 unsigned char chaseBall	= 0;								//Flag if a chase ball has been sent
 unsigned char deadTopSeconds = deadTopDefault;				//This is the actual "in seconds" number we would change. EEPROM stores it in seconds but is calculated into cycle time on settings load
 unsigned long deadTop = (deadTopSeconds * cycleSecond);		//Base default values, can be changed in settings
 unsigned long searchTimer = searchTimerDefault;
 unsigned char searchAttempts = 0;							//How many times we've tried to find the ball during a game
+
+unsigned char highScoreKnocks[] = {highScore1KnocksDefault,
+                                   highScore2KnocksDefault,
+                                   highScore3KnocksDefault,
+                                   highScore4KnocksDefault,
+                                   highScore5KnocksDefault,};
 
 //opCode Definitions----------------------------------------------------
 
@@ -477,6 +489,8 @@ unsigned char lightStatus = 0;						//Control byte for insert light animations
 #define lightAnimate	B10000000					//Bit 7 enables animation
 #define lightLoop		B01000000					//Bit 6 causes animation to loop back to lightStart until disabled
 
+unsigned char lightUseAltDriver = 0;				//Flag to use Herg's alternate lamp driver (Default off)
+
 unsigned char lightData[8]; 						//Bits of each byte control the lights, for a total of 64. What actually gets output to the pins.
 unsigned char lightCol = 0; 						//Current Column byte we are displaying (rows = bits)
 unsigned char lightColBit = 1; 						// Shifts left with each row to trigger Darlingtoin arrays
@@ -515,6 +529,7 @@ unsigned long centerTimer = 0;						//Avoid double hits on Pop Bumper Path, and 
 unsigned long popsTimer = 0;						//If ball rolls out of pops, keeps Center Shot from triggering
 unsigned long rampTimer = 0;						//Avoids double hits on the Ramp Approach switch
 unsigned long orbTimer = 0;							//Avoids false scores on Balcony Approach switch
+unsigned long scoopRepeatTimer = 0;					//If scoop fires again within a short period, make it stronger
 
 unsigned char slingCount[5];						//Counts the Sling Hits. Dialog once at 4 hits, resets when Timer is zero
 
@@ -562,6 +577,8 @@ unsigned char itemParameter = 0;					//What to set it to
 
 unsigned int LeftVUKTime = 0;						//Kickout timer for left VUK (behind door)
 unsigned int ScoopTime = 0;							//Kickout timer for Basement Scoop
+unsigned int KnockerTime = 0;						//Time to wait between knocks
+int KnockerCount = 0;							//Number of knocks waiting to be fired
 
 int LeftOrbitTime = 0;								//Timer that lefts us know which way the ball is going on Left Orbit.
 int UpperOrbitTime = 0;								//Timer after upper switch hit on orbit. Used to avoid double advance on Prison Lock
@@ -686,10 +703,14 @@ unsigned short scoopPower = 30;							//Power of the right basement scoop
 unsigned short plungerStrength = 30;					//How hard the autolauncher kicks it out
 unsigned short loadStrength = 6;						//How hard the ball loader is
 unsigned short drainStrength = 12;						//15 How hard it gets out of drain
+unsigned short knockerPower = 25;						//Power of the Knocker
 
 unsigned char drainTries = 0;							//If a drain kick doesn't work, this increments and is added to the Drain Strength until all 4 balls are loaded
 
 unsigned short drainPWMstart = 5850;					//When to switch from Drain Kick power kick to PWM hold
+
+unsigned char coilScoopBoost = 0;						//Allow the game to fire the scoop coil harder in cases where it's needed
+
 
 //Static Coil / Magnet Settings-----------------------------------------
 //#define loadStrength	10							//How hard the ball loader is
@@ -716,7 +737,8 @@ unsigned char SolPin[] = {22, 23, 32, 25, 31, 30, 2, 4, 7, 11, 12, 70, 71, 72, 7
 
 //		sol0
 #define Magnet			0
-#define sol1			1	//GI 1
+//#define sol1			1	//GI 1
+#define Knocker			1
 #define sol2			2	//GI 2
 #define sol3			3	//GI 3
 #define sol4			4
